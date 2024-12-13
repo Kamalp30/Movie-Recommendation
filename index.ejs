@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trending Movies</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <header class="hero">
+    <h1>Welcome to MovieHub</h1>
+    <p>Your go-to platform for trending and highly-rated movies</p>
+  </header>
+
+  <section class="movie-list">
+    <h2>Trending Movies</h2>
+    <div class="movies-grid">
+      <% movies.forEach(movie => { %>
+        <div class="movie-card">
+          <!-- Link to movie details page -->
+          <a href="/movie/<%= movie.id %>">
+            <!-- Display poster image or fallback if missing -->
+            <img src="<%= movie.poster_path ? 'https://image.tmdb.org/t/p/w500' + movie.poster_path : '/images/fallback-poster.jpg' %>" 
+                 alt="<%= movie.title %>">
+            <h3><%= movie.title %></h3>
+            <!-- Display the average rating -->
+            <p>Average Rating: <%= movie.averageRating %>/5</p>
+          </a>
+        </div>
+      <% }) %>
+    </div>
+  </section>
+</body>
+</html>

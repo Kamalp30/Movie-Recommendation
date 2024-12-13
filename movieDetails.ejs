@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= movie.title %> - Movie Details
+  </title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      background-color: #f4f6f9;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background-color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 1.5rem auto;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .average-rating,
+    .reviews-container {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+    }
+
+    .stars-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .star {
+      color: #e0e0e0;
+      font-size: 1.5rem;
+      margin: 0 2px;
+      transition: color 0.3s ease;
+    }
+
+    .star.full-star {
+      color: #ffc107;
+    }
+
+    .star.half-star {
+      background: linear-gradient(90deg, #ffc107 50%, #e0e0e0 50%);
+      -webkit-text-fill-color: transparent;
+    }
+
+    .numeric-rating {
+      margin-left: 0.5rem;
+      color: #6c757d;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .star-rating .star {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .star-rating .star:hover,
+    .star-rating .star.selected {
+      color: #ffc107;
+      transform: scale(1.2);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      resize: vertical;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .btn-show-more {
+      display: block;
+      margin: 1rem auto;
+      background-color: #2ecc71;
+    }
+
+    .btn-show-more:hover {
+      background-color: #27ae60;
+    }
+
+    .review-card {
+      background-color: white;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .star {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+    <div class="container">
+      <!-- Movie Details -->
+      <h1>
+        <%= movie.title %>
+      </h1>
+      <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %>">
+      <p>
+        <%= movie.overview %>
+      </p>
+
+      <!-- Average Rating Section -->
+      <div class="average-rating">
+        <h3>Average Rating:</h3>
+        <div class="stars-container">
+          <% for (let i=1; i <=5; i++) { %>
+            <% if (i <=Math.floor(averageRating)) { %>
+              <span class="star full-star">&#9733;</span>
+              <% } else if (i - averageRating < 1) { %>
+                <span class="star half-star">&#9733;</span>
+                <% } else { %>
+                  <span class="star empty-star">&#9733;</span>
+                  <% } %>
+                    <% } %>
+                      <span class="numeric-rating">(<%= averageRating.toFixed(1) %> / 5.0)</span>
+        </div>
+      </div>
+
+      <!-- Rate This Movie Section -->
+      <% if (user) { %>
+        <h2>Rate this Movie</h2>
+        <form action="/movie/<%= movie.id %>/rate" method="POST">
+          <div class="star-rating">
+            <% for (let i=1; i <=5; i++) { %>
+              <span class="star" data-value="<%= i %>">&#9733;</span>
+              <% } %>
+          </div>
+          <input type="hidden" id="rating" name="rating" required>
+          <label for="reviewText">Your Review:</label>
+          <textarea id="reviewText" name="reviewText" rows="4" required></textarea>
+          <button type="submit">Submit Review</button>
+        </form>
+        <% } else { %>
+          <p>You need to <a href="/login">log in</a> to submit a review.</p>
+          <% } %>
+
+            <!-- User Reviews Section -->
+            <h2>User Reviews</h2>
+            <div class="reviews-container">
+              <% reviews.slice(0, 5).forEach(review=> { %>
+                <div class="review-card">
+                  <div class="review-header">
+                    <strong><%= review.userName %></strong>
+                    <div class="stars-container">
+                      <% for (let i=1; i <=5; i++) { %>
+                        <% if (i <=review.rating) { %>
+                          <span class="star full-star">&#9733;</span>
+                          <% } else { %>
+                            <span class="star empty-star">&#9733;</span>
+                            <% } %>
+                              <% } %>
+                    </div>
+                  </div>
+                  <p class="review-text">
+                    <%= review.reviewText %>
+                  </p>
+                </div>
+                <% }) %>
+            </div>
+            <% if (reviews.length> 5) { %>
+              <button class="btn-show-more" id="showMore">Show More Reviews</button>
+              <% } %>
+    </div>
+
+    <script>
+      // Handle Star Rating UI
+      const stars = document.querySelectorAll('.star-rating .star');
+      const ratingInput = document.getElementById('rating');
+
+      stars.forEach(star => {
+        star.addEventListener('mouseover', function () {
+          const value = this.getAttribute('data-value');
+          highlightStars(value);
+        });
+
+        star.addEventListener('mouseout', function () {
+          const currentRating = ratingInput.value;
+          highlightStars(currentRating || 0);
+        });
+
+        star.addEventListener('click', function () {
+          const value = this.getAttribute('data-value');
+          ratingInput.value = value;
+          highlightStars(value);
+        });
+      });
+
+      function highlightStars(rating) {
+        stars.forEach(star => {
+          const value = star.getAttribute('data-value');
+          star.classList.toggle('selected', value <= rating);
+        });
+      }
+
+      // Show More Reviews Button
+      document.getElementById('showMore')?.addEventListener('click', function () {
+        const hiddenReviews = document.querySelectorAll('.review-card.hidden');
+        hiddenReviews.forEach(review => review.classList.remove('hidden'));
+        this.style.display = 'none'; // Hide the button after showing all reviews
+      });
+
+    </script>
+</body>
+
+</html>
